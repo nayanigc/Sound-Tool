@@ -1,0 +1,170 @@
+#include "args.h"
+
+
+// option qui utilise une fonction void et qui ne prend rien en paramètre
+
+option_t* opt_void(option_t* l, const char* kw, void (*f)()){
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptVoid;
+	n->fct.opt_void = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;  
+	}
+	return n;
+}
+
+// option qui utilise une fonction void et qui prend int16_t, uint32_t, uint16_t en paramètres
+
+option_t* opt_int16_32_16(option_t* l, const char* kw, void (*f)(int16_t, uint32_t, uint16_t)) {
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptInt16_32_16;
+	n->fct.opt_int16_32_16 = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;
+	}
+	return n;
+}
+
+// option qui utilise une fonction void et qui prend un double en paramètre
+
+option_t* opt_double(option_t* l, const char* kw, void (*f)(double)) {
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptDouble;
+	n->fct.opt_double = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;  
+	}
+	return n;
+}
+
+// option qui utilise une fonction void et qui prend une chaîne de caractère en paramètre
+
+option_t* opt_string(option_t* l, const char* kw, void (*f)(const char*)){
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptString;
+	n->fct.opt_string = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;  
+	}
+	return n;
+}
+
+// option qui utilise une fonction void et qui prend uint32_t, uint32_t en paramètres
+
+option_t* opt_uint32_32(option_t* l,const char* kw, void (*f)(uint32_t, uint32_t)){
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptUint32_32;
+	n->fct.opt_uint32_32 = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;  
+	}
+	return n;
+}
+
+// option qui utilise une fonction void et qui prend un uint32_t en paramètre
+
+option_t* opt_uint32(option_t* l,const char* kw, void (*f)(uint32_t)){
+	option_t* n = malloc(sizeof(option_t));
+	n->keyword = kw;
+	n->spec = OptUint32;
+	n->fct.opt_uint32 = f;
+	n->next = NULL;  
+	if(l == NULL){
+		return n;
+	}else{
+		n->next = l;  
+	}
+	return n;
+}
+
+// fonction qui efface une option
+
+void opt_delete(option_t* l){
+	if(l == NULL) return;
+	opt_delete(l->next);
+	free(l);
+}
+
+// fonction qui répartie la ligne de commande comme il faut pour chaque option
+
+void process_arguments(option_t* L, int argc, char* *argv){
+	int i;
+	option_t* l = L;
+	if ( l == NOOPTION){
+		printf("la liste des options est vide");
+		return;
+	}
+	for(i=1; i<argc; i++){
+		l = L;
+		while (l!=NOOPTION) { 
+			if (strcmp(l->keyword,argv[i])==0) {
+				if (l->spec == OptVoid){
+					l->fct.opt_void();		
+				}
+				if (l->spec == OptInt16_32_16){
+					i+=3;
+					l->fct.opt_int16_32_16( atoi(argv[i-2]), atoi(argv[i-1]), atoi(argv[i]) );
+				}
+				if (l->spec == OptString){
+					i++;
+					l->fct.opt_string(argv[i]);
+				}
+				if (l->spec == OptDouble){
+					i++;
+					l->fct.opt_double( atoi(argv[i]) );
+				}
+				if (l->spec == OptUint32_32){
+					i+=2;
+					l->fct.opt_uint32_32( atoi(argv[i-1]), atoi(argv[i]) );
+				}
+				if (l->spec == OptUint32){
+					i++;
+					l->fct.opt_uint32(atoi(argv[i]));
+				}
+				break; 	
+			}
+			l=l->next;
+		}	
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
